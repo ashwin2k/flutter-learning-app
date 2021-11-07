@@ -1,27 +1,28 @@
 import 'dart:math';
-
+import 'package:learning_app/mathdata/mathoperations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class MathOneStudy extends StatefulWidget{
-  const MathOneStudy({Key? key}) : super(key: key);
+class MathTwoStudy extends StatefulWidget{
+  const MathTwoStudy({Key? key}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() =>_mathOneStudyState();
+  State<StatefulWidget> createState() =>_mathTwoStudyState();
 
 }
 
-class _mathOneStudyState extends State<MathOneStudy>{
+class _mathTwoStudyState extends State<MathTwoStudy>{
   FlutterTts flutterTts = FlutterTts();
-  String questionTTS="1 ⚽";
-  var emoji_list=["⚽","🎲","🔑","🍬","🚗"];
-  var emoji_names=["balls","dice","key","chocolate","cars"];
-  int number=1;
+  int number1=1;
+  int number2=2;
+  var operations=["+","*","-","/"];
+
   int index=0;
   @override
   Widget build(BuildContext context) {
+
     flutterTts.setLanguage("en-Us");
     flutterTts.setSpeechRate(0.4);
     // startTTS();
@@ -29,10 +30,11 @@ class _mathOneStudyState extends State<MathOneStudy>{
       Future.delayed(const Duration(milliseconds: 4000),(){
         var rng = new Random();
         setState(() {
-          number=rng.nextInt(10);
+          number1=rng.nextInt(10);
+          number2=rng.nextInt(10);
           index=rng.nextInt(4);
         });
-        startTTS(number.toString()+" "+emoji_names[index]);
+        startTTS("$number1 ${operations[index]} $number2 equals ${Mathoperations.doOperation(number1, number2, index)}");
       });
     });
     return Scaffold(
@@ -49,36 +51,31 @@ class _mathOneStudyState extends State<MathOneStudy>{
               margin: EdgeInsets.all(20),
               child:Row(
                 children: [
-                  Expanded(child: Text(number.toString(),style: GoogleFonts.nunito(
-                      fontSize: 130,
+                  Expanded(child: Text("$number1 ${operations[index]} $number2",style: GoogleFonts.nunito(
+                      fontSize: 60,
                       fontWeight: FontWeight.w700
                   )),flex: 1,),
 
                   Expanded(child:Text(
-                      emoji_list[index]*number,
-                      style: const TextStyle(fontSize: 35)
+                      "= ${Mathoperations.doOperation(number1, number2, index)}",
+                      style: const TextStyle(fontSize: 60)
                   ),flex: 1,),
                 ],
               )
             ),
-            Text(
-              number.toString()
-                  +" "+emoji_names[index],
-              style: GoogleFonts.montserrat(
-                fontSize: 40,
-                fontWeight: FontWeight.w500
-              ),
-            ),
+
             Container(
                 margin: EdgeInsets.all(10),
                 child:ElevatedButton(
                   onPressed: (){
                     var rng = new Random();
                     setState(() {
-                      number=rng.nextInt(10);
+                      number1=rng.nextInt(10);
+                      number2=rng.nextInt(10);
                       index=rng.nextInt(4);
+
                     });
-                    startTTS(number.toString()+" "+emoji_names[index]);
+                    startTTS("$number1 ${operations[index]} $number2 equals ${Mathoperations.doOperation(number1, number2, index)}");
 
                   },
                   style: ButtonStyle(

@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:learning_app/englishtestone.dart';
 import 'package:learning_app/englishtesttwo.dart';
+import 'package:learning_app/englishtwostudy.dart';
 import 'package:learning_app/mathonestudy.dart';
 import 'package:learning_app/mathonetest.dart';
+import 'package:learning_app/mathtwostudy.dart';
 import 'package:learning_app/mathtwotest.dart';
 import 'package:learning_app/selectmode.dart';
 import 'package:learning_app/test_page.dart';
@@ -50,8 +52,10 @@ class _testButtonState extends State<TestButton>{
             case 3:
               Navigator.push(context, MaterialPageRoute(builder: (context)=>const EnglishTestTwo()));
               break;
-            case 4:
             case 5:
+              Navigator.push(context, MaterialPageRoute(builder: (context)=>const EnglishPracticeTwo()));
+              break;
+            case 4:
               Navigator.push(context, MaterialPageRoute(builder: (context)=>const EnglishPractice()));
               break;
             case 6:
@@ -61,8 +65,10 @@ class _testButtonState extends State<TestButton>{
               Navigator.push(context, MaterialPageRoute(builder: (context)=>const MathTwoTest()));
               break;
             case 8:
-            case 9:
               Navigator.push(context, MaterialPageRoute(builder: (context)=>const MathOneStudy()));
+              break;
+            case 9:
+              Navigator.push(context, MaterialPageRoute(builder: (context)=>const MathTwoStudy()));
               break;
           }
 

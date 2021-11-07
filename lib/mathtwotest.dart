@@ -2,9 +2,12 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
+
+import 'mathdata/mathoperations.dart';
 
 class MathTwoTest extends StatefulWidget{
   const MathTwoTest({Key? key}) : super(key: key);
@@ -24,10 +27,49 @@ class _mathtwotestState extends State<MathTwoTest>{
   bool _speechEnabled = false;
   String _lastWords = '';
   String currentAction="Get Ready to speak";
-
+  FlutterTts flutterTts = FlutterTts();
+  String questionTTS="";
+  bool IS_ANSWER_CORRECT=true;
+  int CURRENT_TTS_MODE=0;
+  int TTS_TYPE_FEEDBACK=1;
+  int TTS_TYPE_QUESTION=0;
+  int NO_OF_TRIES_LEFT=3;
   @override
   Widget build(BuildContext context) {
+    flutterTts.setLanguage("en-Us");
+    flutterTts.setSpeechRate(0.5);
+    flutterTts.setCompletionHandler(() {
+      if(CURRENT_TTS_MODE==TTS_TYPE_QUESTION) {
+        startListening();
+      }
+      else  if(IS_ANSWER_CORRECT==true){
+        Future.delayed(const Duration(milliseconds: 4000),(){
+          var rng = Random();
+          setState(() {
+            number1=rng.nextInt(10);
+            number2=rng.nextInt(10);
+            index=rng.nextInt(4);
+            currentAction="Get Ready to speak";
+            NO_OF_TRIES_LEFT=3;
 
+          });
+          startTTS(TTS_TYPE_QUESTION,"$number1 ${operations[index]} $number2 equals what?");
+        });
+      }
+      else{
+        if(NO_OF_TRIES_LEFT==0){
+          setState(() {
+            questionTTS="The correct answer is .. ${Mathoperations.doOperation(number1, number2, index)}?";
+            IS_ANSWER_CORRECT=true;
+          });
+          startTTS(TTS_TYPE_FEEDBACK,questionTTS);
+        }
+        else{
+          NO_OF_TRIES_LEFT-=1;
+          startTTS(TTS_TYPE_QUESTION,"$number1 ${operations[index]} $number2 equals what?");
+        }
+      }
+    });
     return Scaffold(
       appBar: AppBar(
         title: const Text("Test  Math"),
@@ -59,9 +101,10 @@ class _mathtwotestState extends State<MathTwoTest>{
                         number2=rng.nextInt(10);
                         index=rng.nextInt(4);
                         currentAction="Get Ready to speak";
+                        NO_OF_TRIES_LEFT=3;
 
                       });
-                      startListening();
+                      startTTS(TTS_TYPE_QUESTION,"$number1 ${operations[index]} $number2 equals what?");
 
                     },
                     style: ButtonStyle(
@@ -103,9 +146,11 @@ class _mathtwotestState extends State<MathTwoTest>{
                   child:ElevatedButton(
                     onPressed: (){
                       setState(() {
-                        currentAction="Speak Now!";
+                        currentAction="Get ready to speak";
+                        _lastWords="";
+
                       });
-                      startListening();
+                      startTTS(TTS_TYPE_QUESTION,questionTTS);
 
                     },
                     style: ButtonStyle(
@@ -161,7 +206,9 @@ class _mathtwotestState extends State<MathTwoTest>{
   }
   void startListening(){
     Future.delayed(const Duration(milliseconds: 3000),() async{
-      _speechEnabled  = await _speechToText.initialize();
+      if(!_speechEnabled) {
+        _speechEnabled  = await _speechToText.initialize();
+      }
       setState(() {
         currentAction="Speak Now!";
       });
@@ -170,13 +217,36 @@ class _mathtwotestState extends State<MathTwoTest>{
     });
   }
   void stopListening(){
-    Future.delayed(const Duration(milliseconds: 5000),() async{
+    Future.delayed(const Duration(milliseconds: 8000),() async{
 
       await _speechToText.stop();
+      String result_text="It was wrong :(";
+      bool result=false;
+      int parsed_number=int.tryParse(_lastWords)??-1;
 
-      setState(() {
-        currentAction="You said $_lastWords";
-      });
+      if(parsed_number==-1){
+        setState(() {
+          currentAction="You said $_lastWords\n$result_text";
+          IS_ANSWER_CORRECT=result;
+        });
+      }
+      else if(int.parse(_lastWords.toLowerCase()) == Mathoperations.doOperation(number1, number2, index)){
+        print("You are correct!");
+        result_text="It is correct!";
+        result=true;
+        setState(() {
+          currentAction="You said $_lastWords\n$result_text";
+          IS_ANSWER_CORRECT=result;
+        });
+      }
+      else{
+        setState(() {
+          currentAction="You said $_lastWords\n$result_text";
+          IS_ANSWER_CORRECT=result;
+        });
+      }
+
+      startTTS(1, "You said $_lastWords\n...$result_text");
 
     });
   }
@@ -185,6 +255,13 @@ class _mathtwotestState extends State<MathTwoTest>{
     setState(() {
       _lastWords = result.recognizedWords;
     });
-    stopListening();
+    // stopListening();
+  }
+  void startTTS(int type,String prompt) async{
+    var result = await flutterTts.speak(prompt);
+    setState(() {
+      CURRENT_TTS_MODE=type;
+    });
+    print("Speaking.... $result");
   }
 }

@@ -131,7 +131,7 @@ class _engTestOneState extends State<EnglishTestOne>{
                           ),
                           SizedBox(width: 5),
                           Text(
-                            "NEXT LETTER",
+                            "START",
                             style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
@@ -149,6 +149,8 @@ class _engTestOneState extends State<EnglishTestOne>{
                 onPressed: (){
                   setState(() {
                     currentAction="Get ready to speak";
+                    _lastWords="";
+
                   });
                   startTTS(TTS_TYPE_QUESTION,questionTTS);
                 },
@@ -217,7 +219,7 @@ class _engTestOneState extends State<EnglishTestOne>{
     });
   }
   void stopListening(){
-    Future.delayed(const Duration(milliseconds: 5000),() async{
+    Future.delayed(const Duration(milliseconds: 8000),() async{
       await _speechToText.stop();
       String result_text="It was wrong :(";
       bool result=false;
@@ -248,7 +250,6 @@ class _engTestOneState extends State<EnglishTestOne>{
       CURRENT_TTS_MODE=type;
     });
     print("Speaking.... $result");
-
   }
 
 

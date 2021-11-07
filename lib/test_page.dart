@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'englishdata/englishpracticequestions.dart';
@@ -17,9 +18,24 @@ class _testdataState extends State<EnglishPractice>{
   String letter="A";
   String word="Apple";
   String resource="englishresources/apple.jpg";
-
+  FlutterTts flutterTts = FlutterTts();
+  String questionTTS="What is A?";
   @override
   Widget build(BuildContext context) {
+    flutterTts.setLanguage("en-Us");
+    flutterTts.setSpeechRate(0.5);
+    // startTTS();
+    flutterTts.setCompletionHandler(() {
+      Future.delayed(const Duration(milliseconds: 4000),(){
+        EnglishPracticeResoruces randword= EnglishPracticeResoruces.getRandomAlphabet();
+        setState(() {
+          letter=randword.alphabet;
+          word=randword.word;
+          resource="englishresources/"+randword.resource;
+        });
+        startTTS(letter);
+      });
+    });
     return Scaffold(
       appBar: AppBar(
         title: Text("Test"),
@@ -50,12 +66,17 @@ class _testdataState extends State<EnglishPractice>{
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Image(image: AssetImage(resource),
-                        height: 300,),
+                      Text(
+                        letter,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 120
+                        ),),
                       Text(
                           letter+" for "+word,
                           style: const TextStyle(
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.normal,
                           fontSize: 30
                       ),)
                     ],
@@ -72,6 +93,8 @@ class _testdataState extends State<EnglishPractice>{
                     word=randword.word;
                     resource="englishresources/"+randword.resource;
                   });
+                  startTTS(letter);
+
                 },
                 style: ButtonStyle(
                   foregroundColor: MaterialStateProperty.all<Color>(Colors.blue),
@@ -113,5 +136,16 @@ class _testdataState extends State<EnglishPractice>{
       ),
     );
   }
+  void startTTS(String prompt) async{
+    var result = await flutterTts.speak(prompt);
+    print("Speaking.... $result");
 
+  }
+  @override
+  void initState() {
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      print("WidgetsBinding");
+      startTTS(questionTTS);
+    });
+  }
 }

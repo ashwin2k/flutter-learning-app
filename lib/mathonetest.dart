@@ -30,6 +30,9 @@ class _mathOnetestState extends State<MathOneTest>{
 
   int TTS_TYPE_FEEDBACK=1;
   int TTS_TYPE_QUESTION=0;
+
+  int NO_OF_TRIES_LEFT=3;
+
   @override
   Widget build(BuildContext context) {
     questionTTS= "How many ${emoji_list[index]} are there in";
@@ -37,24 +40,41 @@ class _mathOnetestState extends State<MathOneTest>{
     flutterTts.setSpeechRate(0.5);
     // startTTS();
     flutterTts.setCompletionHandler(() {
+      print(CURRENT_TTS_MODE);
+      print("ANSWER $IS_ANSWER_CORRECT");
+
       if(CURRENT_TTS_MODE==TTS_TYPE_QUESTION) {
         startListening();
       }
-      else  if(IS_ANSWER_CORRECT==true){
+      else if(IS_ANSWER_CORRECT==true){
         Future.delayed(const Duration(milliseconds: 4000),(){
+          print("GOING TO NEXT qUESTION");
           var rng = new Random();
+
           setState(() {
             number=rng.nextInt(10);
             index=rng.nextInt(4);
             currentAction="Get Ready to speak";
             questionTTS= "How many ${emoji_list[index]} are there in";
             _lastWords="";
+            NO_OF_TRIES_LEFT=3;
+
           });
           startTTS(TTS_TYPE_QUESTION,questionTTS);
         });
       }
       else{
-
+        if(NO_OF_TRIES_LEFT==0){
+          setState(() {
+            questionTTS="The correct answer is .. $number?";
+            IS_ANSWER_CORRECT=true;
+          });
+          startTTS(TTS_TYPE_FEEDBACK,questionTTS);
+        }
+        else{
+          NO_OF_TRIES_LEFT-=1;
+          startTTS(TTS_TYPE_QUESTION,questionTTS);
+        }
       }
     });
 
@@ -97,6 +117,8 @@ class _mathOnetestState extends State<MathOneTest>{
                         currentAction="Get Ready to speak";
                         questionTTS= "How many ${emoji_list[index]} are there in";
                         _lastWords="";
+                        NO_OF_TRIES_LEFT=3;
+
                       });
                       startTTS(TTS_TYPE_QUESTION,questionTTS);
 
@@ -230,8 +252,14 @@ class _mathOnetestState extends State<MathOneTest>{
           IS_ANSWER_CORRECT=result;
         });
       }
+      else{
+        setState(() {
+          currentAction="You said $_lastWords\n$result_text";
+          IS_ANSWER_CORRECT=result;
+        });
+      }
 
-      startTTS(1, "You said $_lastWords\n$result_text");
+      startTTS(1, "You said $_lastWords\n...$result_text");
     });
   }
   void _onSpeechResult(SpeechRecognitionResult result) {

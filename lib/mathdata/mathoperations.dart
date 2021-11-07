@@ -7,7 +7,7 @@ class Mathoperations{
       case 1:
         return v1*v2;
       case 2:
-        return v2-v1;
+        return v1-v2;
       case 3:
         return v2~/v1;
     }

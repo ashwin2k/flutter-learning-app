@@ -1,84 +1,94 @@
-import 'dart:math';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class MathOneStudy extends StatefulWidget{
-  const MathOneStudy({Key? key}) : super(key: key);
+import 'englishdata/englishpracticequestions.dart';
+
+class EnglishPracticeTwo extends StatefulWidget{
+  const EnglishPracticeTwo({Key? key}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() =>_mathOneStudyState();
+  State<StatefulWidget> createState() =>_practwodataState();
 
 }
+// ignore: camel_case_types
+class _practwodataState extends State<EnglishPracticeTwo>{
 
-class _mathOneStudyState extends State<MathOneStudy>{
+  String letter="A";
+  String word="Apple";
+  String resource="englishresources/apple.jpg";
   FlutterTts flutterTts = FlutterTts();
-  String questionTTS="1 ⚽";
-  var emoji_list=["⚽","🎲","🔑","🍬","🚗"];
-  var emoji_names=["balls","dice","key","chocolate","cars"];
-  int number=1;
-  int index=0;
   @override
   Widget build(BuildContext context) {
     flutterTts.setLanguage("en-Us");
-    flutterTts.setSpeechRate(0.4);
+    flutterTts.setSpeechRate(0.5);
     // startTTS();
     flutterTts.setCompletionHandler(() {
       Future.delayed(const Duration(milliseconds: 4000),(){
-        var rng = new Random();
+        EnglishPracticeResoruces randword= EnglishPracticeResoruces.getRandomAlphabet();
         setState(() {
-          number=rng.nextInt(10);
-          index=rng.nextInt(4);
+          letter=randword.alphabet;
+          word=randword.word;
+          resource="englishresources/"+randword.resource;
         });
-        startTTS(number.toString()+" "+emoji_names[index]);
+        startTTS(word);
       });
     });
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Study Math"),
+        title: Text("Practice"),
       ),
       body: Container(
         alignment: Alignment.center,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
-          children:[
-            Container(
-              margin: EdgeInsets.all(20),
-              child:Row(
-                children: [
-                  Expanded(child: Text(number.toString(),style: GoogleFonts.nunito(
-                      fontSize: 130,
-                      fontWeight: FontWeight.w700
-                  )),flex: 1,),
-
-                  Expanded(child:Text(
-                      emoji_list[index]*number,
-                      style: const TextStyle(fontSize: 35)
-                  ),flex: 1,),
-                ],
-              )
-            ),
+          children: [
             Text(
-              number.toString()
-                  +" "+emoji_names[index],
-              style: GoogleFonts.montserrat(
-                fontSize: 40,
-                fontWeight: FontWeight.w500
-              ),
+                "English 2 - Practice",
+                textAlign: TextAlign.left,
+                style: GoogleFonts.montserrat(fontWeight: FontWeight.w400,fontSize: 30)
+            ),
+            Card(
+                elevation: 3,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    side: const BorderSide(
+                        color: Colors.blueAccent,
+                        width: 2
+                    )
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(15),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image(image: AssetImage(resource),
+                        height: 300,),
+                      Text(
+                        letter+" for "+word,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 30
+                        ),)
+                    ],
+                  ),
+                )
             ),
             Container(
-                margin: EdgeInsets.all(10),
+                margin: EdgeInsets.all(30),
                 child:ElevatedButton(
                   onPressed: (){
-                    var rng = new Random();
+                    EnglishPracticeResoruces randword= EnglishPracticeResoruces.getRandomAlphabet();
                     setState(() {
-                      number=rng.nextInt(10);
-                      index=rng.nextInt(4);
+                      letter=randword.alphabet;
+                      word=randword.word;
+                      resource="englishresources/"+randword.resource;
                     });
-                    startTTS(number.toString()+" "+emoji_names[index]);
+                    startTTS(word);
 
                   },
                   style: ButtonStyle(
@@ -91,8 +101,8 @@ class _mathOneStudyState extends State<MathOneStudy>{
                     ),
                   ),
                   child: Padding(
-
                       padding: EdgeInsets.fromLTRB(5, 15, 5, 15),
+
                       child:Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -114,10 +124,9 @@ class _mathOneStudyState extends State<MathOneStudy>{
                       )
                   ),
                 )
-            ),
+            )
 
-
-          ]
+          ],
         ),
       ),
     );
@@ -125,13 +134,13 @@ class _mathOneStudyState extends State<MathOneStudy>{
   void startTTS(String prompt) async{
     var result = await flutterTts.speak(prompt);
     print("Speaking.... $result");
-  }
 
+  }
   @override
   void initState() {
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       print("WidgetsBinding");
-      // startTTS(questionTTS);
+      startTTS(word);
     });
   }
 }
